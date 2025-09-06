@@ -1,22 +1,22 @@
-import logging 
-import os
-from datetime import datetime
+import traceback
+import sys
 
-LOGS_DIR = "logs"
-os.makedirs(LOGS_DIR, exist_ok=True)
+class CustomException(Exception):
+    
+    def __init__(self, error_message, error_details: sys):
+        super().__init__(error_message)
+        self.error_message = self.get_detailed_error_message(error_message, error_details)
 
-LOGS_FILE = os.path.join(LOGS_DIR, f"log_{datetime.now().strftime('%Y-%m-%d')}.log")
+    @staticmethod
+    def get_detailed_error_message(error_message, error_details: sys):
+        """
+        Fucntion to show the detailed report of the error message
+        """
+        _, _, exc_traceback = traceback.sys.exc_info()
+        filename = exc_traceback.tb_frame.f_code.co_filename
+        linenumber = exc_traceback.tb_lineno
 
-logging.basicConfig(
-    filename=LOGS_FILE,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
-
-def get_logger(name):
-    """
-    Function to initilise logger in different scripts
-    """
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
-    return logger
+        return f"Error in : {filename} , Line No: {linenumber}"
+    
+    def __str__(self):
+        return self.error_message

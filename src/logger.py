@@ -1,22 +1,32 @@
-import traceback
-import sys
+import logging 
+import os
+from datetime import datetime
 
-class CustomException(Exception):
-    
-    def __init__(self, error_message, error_details: sys):
-        super().__init__(error_message)
-        self.error_message = self.get_detailed_error_message(error_message, error_details)
+LOGS_DIR = "logs"
+os.makedirs(LOGS_DIR, exist_ok=True)
 
-    @staticmethod
-    def get_detailed_error_message(error_message, error_details: sys):
-        """
-        Fucntion to show the detailed report of the error message
-        """
-        _, _, exc_traceback = traceback.sys.exc_info()
-        filename = exc_traceback.tb_frame.f_code.co_filename
-        linenumber = exc_traceback.tb_lineno
+LOGS_FILE = os.path.join(LOGS_DIR, f"log_{datetime.now().strftime('%Y-%m-%d')}.log")
 
-        return f"Error in : {filename} , Line No: {linenumber}"
-    
-    def __str__(self):
-        return self.error_message
+# Create a logger
+logging.basicConfig(
+    filename=LOGS_FILE,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
+
+# Add console handler (for terminal streaming)
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+console_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(console_formatter)
+
+# Attach console handler to root logger
+logging.getLogger().addHandler(console_handler)
+
+def get_logger(name):
+    """
+    Function to initialise logger in different scripts
+    """
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+    return logger
